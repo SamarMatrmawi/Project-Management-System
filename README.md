@@ -34,15 +34,57 @@ Project-Management-System
 ```
 
 
-## 4. Database Entities
-
-The database contains:
-
+## 4. Database Design
+The system database contains the following entities:
 - Users
 - Projects
 - Tasks
 - Activity_Log
-- Comments
+
+
+### ER Diagram
+erDiagram
+    USERS {
+        INT user_id PK
+        VARCHAR full_name
+        VARCHAR email
+        VARCHAR password
+        VARCHAR role
+        DATETIME created_at
+    }
+    PROJECTS {
+        INT project_id PK
+        VARCHAR project_name
+        TEXT description
+        DATE start_date
+        DATE end_date
+        VARCHAR status
+        INT created_by FK
+    }
+    TASKS {
+        INT task_id PK
+        INT project_id FK
+        INT assigned_user FK
+        VARCHAR title
+        TEXT description
+        INT priority
+        INT effort
+        VARCHAR status
+        DATETIME created_at
+    }
+    ACTIVITY_LOG {
+        INT log_id PK
+        INT user_id FK
+        INT task_id FK
+        VARCHAR action
+        VARCHAR old_status
+        VARCHAR new_status
+        DATETIME created_at
+    }
+    USERS ||--o{ PROJECTS : creates
+    PROJECTS ||--o{ TASKS : contains
+    USERS ||--o{ TASKS : assigned
+    TASKS ||--o{ ACTIVITY_LOG : tracks
 
 
 ## 5. Algorithms
