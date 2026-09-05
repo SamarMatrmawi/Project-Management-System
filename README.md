@@ -43,7 +43,10 @@ The system database contains the following entities:
 
 
 ### ER Diagram
+
+```mermaid
 erDiagram
+
     USERS {
         INT user_id PK
         VARCHAR full_name
@@ -52,6 +55,7 @@ erDiagram
         VARCHAR role
         DATETIME created_at
     }
+
     PROJECTS {
         INT project_id PK
         VARCHAR project_name
@@ -61,6 +65,7 @@ erDiagram
         VARCHAR status
         INT created_by FK
     }
+
     TASKS {
         INT task_id PK
         INT project_id FK
@@ -72,6 +77,7 @@ erDiagram
         VARCHAR status
         DATETIME created_at
     }
+
     ACTIVITY_LOG {
         INT log_id PK
         INT user_id FK
@@ -81,10 +87,13 @@ erDiagram
         VARCHAR new_status
         DATETIME created_at
     }
+
     USERS ||--o{ PROJECTS : creates
     PROJECTS ||--o{ TASKS : contains
     USERS ||--o{ TASKS : assigned
     TASKS ||--o{ ACTIVITY_LOG : tracks
+```
+
 
 
 ## 5. Algorithms
