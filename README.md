@@ -1,119 +1,81 @@
-# Project Management System
+# تقرير مشروع نظام إدارة المهام والمشاريع
+## Project Management System
 
-## 1. Project Description
+---
 
-This project is a system for managing software projects and tasks.
+### 1. هدف المشروع ونظرة عامة
+يهدف هذا المشروع إلى تصميم وتنفيذ نظام متكامل لإدارة المهام والمشاريع (Project Management System) باستخدام لغة Java، بحيث يجمع النظام بين مبادئ هندسة البرمجيات وبنية قواعد البيانات وتراكيب البيانات والخوارزميات ضمن تطبيق عملي واحد. يسمح النظام لمدير المشروع بإنشاء المشاريع، وتقسيمها إلى مهام رئيسية، وتفريع كل مهمة إلى مهام فرعية ومهام فرعية للمهام الفرعية، بما يحقق تمثيلًا هرميًا (Hierarchical) واقعيًا لطبيعة العمل في المشاريع الحقيقية.
 
-The system allows users to:
-- Create projects
-- Add tasks
-- Assign tasks to team members
-- Track task status
-- Record project activities
+لا يقتصر النظام على التخزين والعرض فقط، بل يوفر أيضًا طبقة مصادقة وتسجيل مستخدمين لإسناد المهام إلى أعضاء الفريق، ولوحة كانبان (Kanban) لتتبع حالة كلمهمة وسجل نشاط (Activity Log) يوثق كل تغيير، إضافة إلى وحدتين تعتمدان مباشرة على تراكيب البيانات والخوارزميات: الأولى تنفذ يدويًا خوارزميتي Merge Sort وQuick Sort لترتيب المهام حسب الأولوية أو تاريخ التسليم، والثانية تطبق تقنية فرّق تسد (Divide and Conquer) بأسلوب عودي (Recursive) لحساب إجمالي الجهد الكلي للمشروع اعتمادًا على شجرة المهام الفرعية المتداخلة.
 
+وُزّعت مسؤوليات بناء النظام على خمسة أعضاء، بحيث يغطي كل عضو جزءًا مترابطًا مع باقي الأجزاء عبر نماذج بيانات وخدمات (Services) مشتركة، مما يحقق فصلًا واضحًا بين طبقة البيانات وطبقة المنطق وطبقة الواجهة، ويجعل النظام قابلًا للتوسعة والصيانة.
 
-## 2. Technologies
+---
 
-- Backend: Java Spring Boot
-- Frontend: HTML, CSS, JavaScript
-- Database: MySQL
-- Version Control: GitHub
+### 2. نظرة عامة على أعضاء الفريق ومسؤولياتهم
 
+| العضو | المسؤولية |
+| :--- | :--- |
+| **العضو الأول** | المشروع والمهام والتسلسل الهرمي وقاعدة البيانات (Project + Tasks + Hierarchical Task Decomposition + Database) |
+| **العضو الثاني** | المصادقة وتسجيل المستخدمين وإسناد المهام (Authentication + User Registration + Task Assignment) |
+| **العضو الثالث** | لوحة كانبان وسجل النشاط (Kanban Board + Activity Log) |
+| **العضو الرابع** | خوارزميات ترتيب المهام: Merge Sort وQuick Sort |
+| **العضو الخامس** | تقنية فرّق تسد (Divide and Conquer) لحساب إجمالي الجهد |
 
-## 3. Project Structure
+---
 
-```
-Project-Management-System
+### 3. عمل العضو الأول: المشروع والمهام وقاعدة البيانات
+#### 3.1 قاعدة البيانات (database)
+* **DatabaseConnection.java**: مسؤول عن الاتصال بقاعدة بيانات SQLite (`project_management.db`) ويوفر الدالة `getConnection()` لفتح الاتصال.
+* **DatabaseInitializer.java**: ينشئ جداول قاعدة البيانات تلقائيًا إذا لم تكن موجودة؛ جدول `projects` للمشاريع، وجدول `tasks` للمهام، ويحتوي جدول `tasks` على العمود `parent_task_id` لدعم العلاقة الهرمية بين المهام والمهام الفرعية.
+* **DatabaseTest.java**: ملف اختبار شامل يغطي إنشاء وقراءة وتعديل وحذف المشاريع والمهام والمهام الفرعية على مستويين (`SubTask` و`SubSubTask`)، وقد انتهى آخر تشغيل بنجاح (Process finished with exit code 0).
 
-├── backend
-├── frontend
-├── database
-├── algorithms
-├── docs
-└── tests
-```
+#### 3.2 نموذج البيانات (model)
+* **Project.java**: يمثل المشروع (الاسم، الوصف، تاريخ البدء، تاريخ الانتهاء) وقائمة المهام التابعة له، ويحتوي على الدالة `addTask()` لإضافة مهمة للمشروع.
+* **Task.java**: يمثل المهمة (العنوان، الوصف، الأولوية، تاريخ التسليم، الجهد، المهمة الأم، المهام الفرعية) ويدعم العلاقة الهرمية بين المهام عبر الدالة `addSubTask()` التي تربط المهمة الفرعية بالمهمة الأم.
 
+#### 3.3 خدمة إدارة المشروع (service)
+* **ProjectManager.java**: يوفر العمليات الأساسية لإنشاء وقراءة وتعديل وحذف المشاريع والمهام والمهام الفرعية، مع دعم مستويات متداخلة من نوع `Task` &rarr; `SubTask` &rarr; `SubSubTask`، كما يدعم حذف المهمة وجميع المستويات التابعة لها.
 
-## 4. Database Design
-The system database contains the following entities:
-- Users
-- Projects
-- Tasks
-- Activity_Log
+#### 3.4 إعداد Maven
+* تمت إضافة Maven للمشروع مع مكتبة SQLite JDBC (الإصدار 3.53.4.0)، ويعتمد المشروع على Java 25.
+* **النتيجة**: قسم المشروع والمهام والتسلسل الهرمي وقاعدة البيانات مكتمل ومختبر بنجاح.
 
+---
 
-### ER Diagram
+### 4. عمل العضو الثاني: المصادقة وتسجيل المستخدمين وإسناد المهام
+#### 4.1 قاعدة البيانات
+* **UserDatabaseSetup.java**: يجهز جدول `users` بالقيود المطلوبة، ويدعم ربط المستخدمين بالمهام.
 
-```mermaid
-erDiagram
+#### 4.2 نموذج البيانات
+* **User.java**: يمثل المستخدم داخل النظام ويحتوي على بياناته الأساسية.
 
-    USERS {
-        INT user_id PK
-        VARCHAR full_name
-        VARCHAR email
-        VARCHAR password
-        VARCHAR role
-        DATETIME created_at
-    }
+#### 4.3 الخدمات (service)
+* **UserManager.java**: تسجيل المستخدمين، تسجيل الدخول والتحقق من بيانات الدخول، وتشفير كلمات المرور باستخدام `PBKDF2WithHmacSHA256` لتأمين النظام.
+* **AssignmentManager.java**: يتيح إسناد المهام أو المهام الفرعية لأعضاء الفريق والتحقق من الصلاحيات.
+* **النتيجة**: تم إكمال نظام الأمان والمصادقة وإسناد المهام وربطه بنجاح مع قاعدة البيانات وجدول المهام الأساسي.
 
-    PROJECTS {
-        INT project_id PK
-        VARCHAR project_name
-        TEXT description
-        DATE start_date
-        DATE end_date
-        VARCHAR status
-        INT created_by FK
-    }
+---
 
-    TASKS {
-        INT task_id PK
-        INT project_id FK
-        INT assigned_user FK
-        VARCHAR title
-        TEXT description
-        INT priority
-        INT effort
-        VARCHAR status
-        DATETIME created_at
-    }
+### 5. عمل العضو الثالث: لوحة كانبان وسجل النشاط
+#### 5.1 لوحة كانبان (Kanban Board)
+* **KanbanBoard.java**: يدير حالات المهمة الثلاث (`To Do`, `In Progress`, `Done`)، ويتيح نقل المهام ديناميكيًا بين الأعمدة وتحديث حالتها في قاعدة البيانات.
 
-    ACTIVITY_LOG {
-        INT log_id PK
-        INT user_id FK
-        INT task_id FK
-        VARCHAR action
-        VARCHAR old_status
-        VARCHAR new_status
-        DATETIME created_at
-    }
+#### 5.2 سجل النشاط (Activity Log)
+* **ActivityLog.java**: يمثل سجل التغييرات على المهام (مثل تغيير الحالة، تعديل الأولوية، أو إعادة الإسناد) ويحفظ التاريخ والوقت والمستخدم المسؤول عن التعديل.
+* **LogManager.java**: الخدمة المسؤولة عن كتابة السجلات وقراءتها لضمان الشفافية ومتابعة سير العمل.
 
-    USERS ||--o{ PROJECTS : creates
-    PROJECTS ||--o{ TASKS : contains
-    USERS ||--o{ TASKS : assigned
-    TASKS ||--o{ ACTIVITY_LOG : tracks
-```
+---
 
+### 6. عمل العضو الرابع: خوارزميات ترتيب المهام
+#### 6.1 الفرز والترتيب المخصص
+* **MergeSort.java**: دالة فرز يدوية مبنية على تقنية فرّق تسد لترتيب المهام بناءً على تاريخ التسليم (`Due Date`) بكفاءة زمنية `O(N log N)`.
+* **QuickSort.java**: دالة فرز يدوية سريعة لترتيب قائمة المهام بناءً على مستوى الأولوية (`Priority`) مع اختيار العنصر المحوري (`Pivot`) بذكاء لتقليل التعقيد.
+* **النتيجة**: تتيح الواجهة لمدير المشروع عرض المهام مرتبة ترتيبًا مخصصًا دون الاعتماد على الدوال الجاهزة في لغة جافا.
 
+---
 
-## 5. Algorithms
-
-### Sorting Algorithm
-Used to sort tasks based on:
-- Priority
-- Effort
-
-
-### Divide and Conquer
-Used to calculate the total project effort.
-
-
-## 6. Team Roles
-
-| Member | Responsibility |
-|---|---|
-| Member 1 | Project Structure and Database |
-| Member 2 | Authentication |
-| Member 3 | Tasks Management |
-| Member 4 | Sorting Algorithms |
-| Member 5 | Divide and Conquer |
+### 7. عمل العضو الخامس: حساب الجهد بتقنية فرّق تسد
+#### 7.1 الحساب العودي لشجرة المهام
+* **EffortCalculator.java**: يطبق خوارزمية فرّق تسد (`Divide and Conquer`) عبر ميثود عودية (`Recursive Method`) تمر على المهمة الأساسية وتجمع قيم الجهد (`Effort`) المخزنة في جميع المهام الفرعية (`SubTasks`) والمهام الفرعية التابعة لها (`SubSubTasks`).
+* **النتيجة**: يضمن هذا التصميم حسابًا دقيقًا وسريعًا لإجمالي الساعات أو النقاط المطلوبة لإنجاز المشروع بالاعتماد على البنية الهرمية للملفات.
